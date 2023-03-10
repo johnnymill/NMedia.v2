@@ -33,10 +33,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         loadPosts()
     }
 
-    fun loadPosts() {
+    private fun reload(isInitial: Boolean) {
         thread {
             // Начинаем загрузку
-            _data.postValue(FeedModel(loading = true))
+            _data.postValue(FeedModel(loading = isInitial, refreshing = !isInitial))
             try {
                 // Данные успешно получены
                 val posts = repository.getAll()
@@ -46,6 +46,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 FeedModel(error = true)
             }.also(_data::postValue)
         }
+    }
+
+    fun loadPosts() {
+        reload(true)
+    }
+
+    fun refreshPosts() {
+        reload(false)
     }
 
     fun save() {
