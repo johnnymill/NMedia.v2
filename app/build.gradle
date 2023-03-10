@@ -51,6 +51,7 @@ dependencies {
     def ext_junit_version = "1.1.5"
     def espresso_core_version = "3.5.1"
     def activity_version = "1.6.1"
+    def swiperefreshlayout_version = "1.1.0"
     def lifecycle_version = "2.5.1"
     def mdc_version = "1.8.0"
     def gson_version = "2.10.1"
@@ -66,6 +67,7 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
     implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
     implementation "androidx.activity:activity-ktx:$activity_version"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swiperefreshlayout_version"
 
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
