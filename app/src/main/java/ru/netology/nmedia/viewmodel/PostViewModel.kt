@@ -6,8 +6,6 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
-import java.io.IOException
-import kotlin.concurrent.thread
 
 private val empty = Post(
     id = 0,
@@ -34,18 +32,16 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun reload(isInitial: Boolean) {
-        thread {
-            // Начинаем загрузку
-            _data.postValue(FeedModel(loading = isInitial, refreshing = !isInitial))
-            try {
-                // Данные успешно получены
-                val posts = repository.getAll()
-                FeedModel(posts = posts, empty = posts.isEmpty())
-            } catch (e: IOException) {
-                // Получена ошибка
-                FeedModel(error = true)
-            }.also(_data::postValue)
-        }
+        _data.value = FeedModel(loading = isInitial, refreshing = !isInitial)
+        repository.getAll(object : PostRepository.ResponseCallback<List<Post>> {
+            override fun onSuccess(result: List<Post>) {
+                _data.postValue(FeedModel(posts = result, empty = result.isEmpty()))
+            }
+
+            override fun onError(e: Exception) {
+                _data.postValue(FeedModel(error = true))
+            }
+        })
     }
 
     fun loadPosts() {
@@ -58,10 +54,16 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun save() {
         edited.value?.let {
-            thread {
-                repository.save(it)
-                _postCreated.postValue(Unit)
-            }
+            repository.save(it, object : PostRepository.ResponseCallback<Post> {
+                override fun onSuccess(result: Post) {
+                    // TODO compare it against result?
+                    _postCreated.postValue(Unit)
+                }
+
+                override fun onError(e: Exception) {
+                    TODO("IDK how to show Snackbar here")
+                }
+            })
         }
         edited.value = empty
     }
@@ -79,42 +81,41 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
-        thread {
-            // Оптимистичная модель
-            val old = _data.value?.posts.orEmpty()
-            _data.postValue(
-                _data.value?.copy(posts = _data.value?.posts.orEmpty().map {
-                    if (it.id != id) it else it.copy(
-                        likedByMe = !it.likedByMe,
-                        likes = it.likes + if (!it.likedByMe) 1 else -1
-                    )
-                })
+        // Оптимистичная модель
+        val old = _data.value?.posts.orEmpty()
+        _data.value = _data.value?.copy(posts = _data.value?.posts.orEmpty().map {
+            if (it.id != id) it else it.copy(
+                likedByMe = !it.likedByMe,
+                likes = it.likes + if (!it.likedByMe) 1 else -1
             )
-            try {
-                val post = repository.likeById(id)
-                FeedModel(posts = _data.value?.posts.orEmpty().map {
-                    if (it.id != post.id) it else post.copy()
-                })
-            } catch (e: IOException) {
-                FeedModel(posts = old)
-            }.also(_data::postValue)
-        }
+        })
+        repository.likeById(id, object : PostRepository.ResponseCallback<Post> {
+            override fun onSuccess(result: Post) {
+                // Nothing to do because of optimistic model.
+                // It is not much significant to lose possibly updated likes counter,
+                // blinking icon due to query delay is worse.
+            }
+
+            override fun onError(e: Exception) {
+                _data.postValue(_data.value?.copy(posts = old))
+            }
+        })
     }
 
     fun removeById(id: Long) {
-        thread {
-            // Оптимистичная модель
-            val old = _data.value?.posts.orEmpty()
-            _data.postValue(
-                _data.value?.copy(posts = _data.value?.posts.orEmpty()
-                    .filter { it.id != id }
-                )
-            )
-            try {
-                repository.removeById(id)
-            } catch (e: IOException) {
+        // Оптимистичная модель
+        val old = _data.value?.posts.orEmpty()
+        _data.value = _data.value?.copy(posts = _data.value?.posts.orEmpty()
+            .filter { it.id != id }
+        )
+        repository.removeById(id, object : PostRepository.ResponseCallback<Any> {
+            override fun onSuccess(result: Any) {
+                // Nothing to do because of optimistic model.
+            }
+
+            override fun onError(e: Exception) {
                 _data.postValue(_data.value?.copy(posts = old))
             }
-        }
+        })
     }
 }
