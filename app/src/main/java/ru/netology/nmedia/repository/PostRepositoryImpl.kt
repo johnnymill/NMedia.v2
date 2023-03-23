@@ -6,6 +6,7 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_REQUEST
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.dto.Post
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -20,7 +21,7 @@ class PostRepositoryImpl : PostRepository {
     private val typeTokenOnePost = object : TypeToken<Post>() {}
 
     companion object {
-        private const val BASE_URL = "http://10.0.2.2:9999"
+        private const val BASE_URL = BuildConfig.NMEDIA_SERVER
         private val jsonType = "application/json".toMediaType()
     }
 

@@ -6,6 +6,8 @@ import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -37,6 +39,13 @@ class PostViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(post: Post) {
+        Glide.with(binding.root)
+            .load("${BuildConfig.NMEDIA_SERVER}/avatars/${post.authorAvatar}")
+            .placeholder(R.drawable.ic_avatar_loading_100dp)
+            .error(R.drawable.ic_avatar_load_error_100dp)
+            .timeout(10_000)
+            .into(binding.avatar)
+
         binding.apply {
             author.text = post.author
             published.text = post.published
