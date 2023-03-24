@@ -1,6 +1,7 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
@@ -10,6 +11,7 @@ import com.bumptech.glide.Glide
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
+import ru.netology.nmedia.dto.AttachmentType
 import ru.netology.nmedia.dto.Post
 
 interface OnInteractionListener {
@@ -47,6 +49,18 @@ class PostViewHolder(
             .circleCrop()
             .into(binding.avatar)
 
+        if (post.attachment != null) {
+            if (post.attachment.type != AttachmentType.IMAGE) {
+                throw Exception("Got unsupported attachment")
+            }
+            Glide.with(binding.root)
+                .load("${BuildConfig.NMEDIA_SERVER}/images/${post.attachment.url}")
+                .placeholder(R.drawable.ic_avatar_loading_100dp)
+                .error(R.drawable.ic_avatar_load_error_100dp)
+                .timeout(10_000)
+                .into(binding.attachment)
+        }
+
         binding.apply {
             author.text = post.author
             published.text = post.published
@@ -54,6 +68,16 @@ class PostViewHolder(
             // в адаптере
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
+
+            attachment.visibility = when(post.attachment) {
+                null -> View.GONE
+                else -> {
+                    if (android.os.Build.VERSION.SDK_INT >= 26) {
+                        attachment.tooltipText = post.attachment.description
+                    }
+                    View.VISIBLE
+                }
+            }
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
