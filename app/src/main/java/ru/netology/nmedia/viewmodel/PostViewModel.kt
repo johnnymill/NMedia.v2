@@ -90,7 +90,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 likes = it.likes + if (!it.likedByMe) 1 else -1
             )
         })
-        repository.likeById(id, object : PostRepository.ResponseCallback<Post> {
+
+        val liker = object : PostRepository.ResponseCallback<Post> {
             override fun onSuccess(result: Post) {
                 // Nothing to do because of optimistic model.
                 // It is not much significant to lose possibly updated likes counter,
@@ -100,7 +101,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             override fun onError(e: Exception) {
                 _data.postValue(_data.value?.copy(posts = old))
             }
-        })
+        }
+
+        if (old.firstOrNull { it.id == id } !!.likedByMe) {
+            repository.dislikeById(id, liker)
+        } else {
+            repository.likeById(id, liker)
+        }
     }
 
     fun removeById(id: Long) {
@@ -109,8 +116,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         _data.value = _data.value?.copy(posts = _data.value?.posts.orEmpty()
             .filter { it.id != id }
         )
-        repository.removeById(id, object : PostRepository.ResponseCallback<Any> {
-            override fun onSuccess(result: Any) {
+        repository.removeById(id, object : PostRepository.ResponseCallback<Unit> {
+            override fun onSuccess(result: Unit) {
                 // Nothing to do because of optimistic model.
             }
 
