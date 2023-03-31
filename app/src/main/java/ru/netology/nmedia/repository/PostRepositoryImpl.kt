@@ -13,16 +13,15 @@ class PostRepositoryImpl : PostRepository {
         ApiPosts.retrofitService.getById(id).enqueue(object : Callback<Post> {
             override fun onResponse(call: Call<Post>, response: Response<Post>) {
                 if (!response.isSuccessful) {
-                    callback.onError(Exception(response.message()))
+                    callback.onError(response.code(), response.message())
                 } else {
                     callback.onSuccess(requireNotNull(response.body()) { "body is null" })
                 }
             }
 
             override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError(Exception(t))
+                callback.onFailure(Exception(t))
             }
-
         })
     }
 
@@ -30,14 +29,14 @@ class PostRepositoryImpl : PostRepository {
         ApiPosts.retrofitService.getAll().enqueue(object : Callback<List<Post>> {
             override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
                 if (!response.isSuccessful) {
-                    callback.onError(Exception(response.message()))
+                    callback.onError(response.code(), response.message())
                 } else {
                     callback.onSuccess(requireNotNull(response.body()) { "body is null" })
                 }
             }
 
             override fun onFailure(call: Call<List<Post>>, t: Throwable) {
-                callback.onError(Exception(t))
+                callback.onFailure(Exception(t))
             }
         })
     }
@@ -46,16 +45,15 @@ class PostRepositoryImpl : PostRepository {
         ApiPosts.retrofitService.save(post).enqueue(object : Callback<Post> {
             override fun onResponse(call: Call<Post>, response: Response<Post>) {
                 if (!response.isSuccessful) {
-                    callback.onError(Exception(response.message()))
+                    callback.onError(response.code(), response.message())
                 } else {
                     callback.onSuccess(requireNotNull(response.body()) { "body is null" })
                 }
             }
 
             override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError(Exception(t))
+                callback.onFailure(Exception(t))
             }
-
         })
     }
 
@@ -63,16 +61,15 @@ class PostRepositoryImpl : PostRepository {
         ApiPosts.retrofitService.removeById(id).enqueue(object : Callback<Unit> {
             override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
                 if (!response.isSuccessful) {
-                    callback.onError(Exception(response.message()))
+                    callback.onError(response.code(), response.message())
                 } else {
                     callback.onSuccess(requireNotNull(response.body()) { "body is null" })
                 }
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {
-                callback.onError(Exception(t))
+                callback.onFailure(Exception(t))
             }
-
         })
     }
 
@@ -80,16 +77,15 @@ class PostRepositoryImpl : PostRepository {
         ApiPosts.retrofitService.likeById(id).enqueue(object : Callback<Post> {
             override fun onResponse(call: Call<Post>, response: Response<Post>) {
                 if (!response.isSuccessful) {
-                    callback.onError(Exception(response.message()))
+                    callback.onError(response.code(), response.message())
                 } else {
                     callback.onSuccess(requireNotNull(response.body()) { "body is null" })
                 }
             }
 
             override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError(Exception(t))
+                callback.onFailure(Exception(t))
             }
-
         })
     }
 
@@ -97,16 +93,15 @@ class PostRepositoryImpl : PostRepository {
         ApiPosts.retrofitService.dislikeById(id).enqueue(object : Callback<Post> {
             override fun onResponse(call: Call<Post>, response: Response<Post>) {
                 if (!response.isSuccessful) {
-                    callback.onError(Exception(response.message()))
+                    callback.onError(response.code(), response.message())
                 } else {
                     callback.onSuccess(requireNotNull(response.body()) { "body is null" })
                 }
             }
 
             override fun onFailure(call: Call<Post>, t: Throwable) {
-                callback.onError(Exception(t))
+                callback.onFailure(Exception(t))
             }
-
         })
     }
 }

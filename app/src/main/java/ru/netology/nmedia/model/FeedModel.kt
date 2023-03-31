@@ -8,4 +8,10 @@ data class FeedModel(
     val error: Boolean = false,
     val empty: Boolean = false,
     val refreshing: Boolean = false,
+    val response: FeedResponse = FeedResponse()
+)
+
+data class FeedResponse(
+    val code: Int = 0,
+    val message: String? = null
 )

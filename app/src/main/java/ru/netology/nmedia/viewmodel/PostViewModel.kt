@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
+import ru.netology.nmedia.model.FeedResponse
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 
@@ -39,7 +40,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _data.postValue(FeedModel(posts = result, empty = result.isEmpty()))
             }
 
-            override fun onError(e: Exception) {
+            override fun onError(code: Int, message: String) {
+                _data.postValue(FeedModel(error = true, response = FeedResponse(code, message)))
+            }
+
+            override fun onFailure(e: Exception) {
                 _data.postValue(FeedModel(error = true))
             }
         })
@@ -61,8 +66,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     _postCreated.postValue(Unit)
                 }
 
-                override fun onError(e: Exception) {
-                    TODO("IDK how to show Snackbar here")
+                override fun onError(code: Int, message: String) {
+                    _data.postValue(FeedModel(response = FeedResponse(code, message)))
+                }
+
+                override fun onFailure(e: Exception) {
+                    TODO("IDK what to do here")
                 }
             })
         }
@@ -98,7 +107,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 // blinking icon due to query delay is worse.
             }
 
-            override fun onError(e: Exception) {
+            override fun onError(code: Int, message: String) {
+                _data.postValue(FeedModel(posts = old, response = FeedResponse(code, message)))
+            }
+
+            override fun onFailure(e: Exception) {
                 _data.postValue(_data.value?.copy(posts = old))
             }
         }
@@ -121,7 +134,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 // Nothing to do because of optimistic model.
             }
 
-            override fun onError(e: Exception) {
+            override fun onError(code: Int, message: String) {
+                _data.postValue(FeedModel(posts = old, response = FeedResponse(code, message)))
+            }
+
+            override fun onFailure(e: Exception) {
                 _data.postValue(_data.value?.copy(posts = old))
             }
         })
