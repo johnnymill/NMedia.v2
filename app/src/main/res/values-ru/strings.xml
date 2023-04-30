@@ -14,7 +14,7 @@
     <string name="error_empty_content">Контент не может быть пустым</string>
     <string name="chooser_share_post">Поделиться</string>
     <string name="add_post">Добавить пост</string>
-    <string name="retry_loading">Повторить</string>
+    <string name="retry_acting">Повторить</string>
     <string name="empty_posts">Постов нет.\nЕсли создадите новый пост, то он появится здесь</string>
     <string name="error_loading">Что-то пошло не так. Попробуйте позднее</string>
     <string name="error_response">Сервер ответил %1$s (%2$d)</string>

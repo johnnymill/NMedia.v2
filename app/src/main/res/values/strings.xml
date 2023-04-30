@@ -13,7 +13,7 @@
     <string name="error_empty_content">Content can\'t be empty</string>
     <string name="chooser_share_post">Share post</string>
     <string name="add_post">Add post</string>
-    <string name="retry_loading">Retry</string>
+    <string name="retry_acting">Retry</string>
     <string name="empty_posts">There are no posts.\nIf you create a new post, it will appear here</string>
     <string name="error_loading">Something went wrong. Try again later</string>
     <string name="error_response">Server replied with %1$s (%2$d)</string>
