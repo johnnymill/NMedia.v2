@@ -9,13 +9,13 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.model.FeedModelActing
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
@@ -55,37 +55,47 @@ class FeedFragment : Fragment() {
             }
         })
         binding.list.adapter = adapter
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
-            binding.progress.isVisible = state.loading || state.refreshing
-            binding.errorGroup.isVisible = state.error
-            binding.emptyText.isVisible = state.empty
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            binding.progress.isVisible = state.acting == FeedModelActing.LOADING
+            binding.swiperefresh.isRefreshing = state.acting == FeedModelActing.REFRESHING
 
-            if (state.response.code != 0) {
-                Snackbar
-                    .make(
-                        requireView(),
-                        getString(
-                            R.string.error_response,
-                            state.response.message.toString(),
-                            state.response.code
-                        ),
-                        BaseTransientBottomBar.LENGTH_INDEFINITE
+            if (state.error) {
+                val message = if (state.response.code == 0) {
+                    getString(R.string.error_loading)
+                } else {
+                    getString(
+                        R.string.error_response,
+                        state.response.message.toString(),
+                        state.response.code
                     )
-                    .setAction(android.R.string.ok) {
-                        return@setAction
+                }
+                val actResId = when (state.acting) {
+                    FeedModelActing.IDLE -> android.R.string.ok
+                    else -> R.string.retry_acting
+                }
+                Snackbar.make(
+                    binding.root,
+                    message,
+                    Snackbar.LENGTH_LONG
+                ).setAction(actResId) {
+                    when (state.acting) {
+                        FeedModelActing.LOADING -> viewModel.loadPosts()
+                        FeedModelActing.REFRESHING -> viewModel.refreshPosts()
+                        FeedModelActing.REMOVING -> viewModel.removeById(state.postId)
+                        FeedModelActing.LIKING -> viewModel.likeById(state.postId)
+                        FeedModelActing.IDLE -> return@setAction
                     }
-                    .show()
+                }.show()
             }
         }
 
-        binding.retryButton.setOnClickListener {
-            viewModel.loadPosts()
+        viewModel.data.observe(viewLifecycleOwner) { data ->
+            adapter.submitList(data.posts)
+            binding.emptyText.isVisible = data.empty
         }
 
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refreshPosts()
-            binding.swiperefresh.isRefreshing = false
         }
 
         binding.fab.setOnClickListener {
