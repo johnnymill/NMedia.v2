@@ -1,10 +1,10 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.dto.Post
 
 interface PostRepository {
-    val posts: LiveData<List<Post>>
+    val posts: Flow<List<Post>>
 
     suspend fun getAll()
     suspend fun save(post: Post)
