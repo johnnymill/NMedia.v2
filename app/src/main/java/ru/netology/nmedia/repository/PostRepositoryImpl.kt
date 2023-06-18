@@ -1,7 +1,9 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
+import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.api.ApiPosts
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
@@ -15,7 +17,9 @@ import java.io.IOException
 
 
 class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
-    override val posts: LiveData<List<Post>> = postDao.getAll().map(List<PostEntity>::toDto)
+    override val posts: Flow<List<Post>> = postDao.getAll()
+        .map(List<PostEntity>::toDto)
+        .flowOn(Dispatchers.Default)
 
 //    private fun getById(id: Long, callback: PostRepository.ResponseCallback<Post>) {
 //        ApiPosts.retrofitService.getById(id).enqueue(object : Callback<Post> {
@@ -64,27 +68,31 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     }
 
     override suspend fun removeById(id: Long) {
-        val postRemoved = posts.value?.firstOrNull { it.id == id }
-            ?: throw RuntimeException("Failed to find a post by ID")
+        val postRemoved = postDao.get(id)
+        if (BuildConfig.DEBUG) {
+            Log.d("REPOSITORY", "post to be deleted: $postRemoved")
+        }
         postDao.removeById(id)
         try {
             val response = ApiPosts.retrofitService.removeById(id)
             if (!response.isSuccessful) {
-                postDao.insert(PostEntity.fromDto(postRemoved)) // recover previous state
+                postDao.insert(postRemoved) // recover previous state
                 throw ApiError(response.code(), response.message())
             }
         } catch (e: IOException) {
-            postDao.insert(PostEntity.fromDto(postRemoved)) // recover previous state
+            postDao.insert(postRemoved) // recover previous state
             throw NetworkError
         } catch (e: Exception) {
-            postDao.insert(PostEntity.fromDto(postRemoved)) // recover previous state
+            postDao.insert(postRemoved) // recover previous state
             throw UnknownError
         }
     }
 
     override suspend fun likeById(id: Long) {
-        val post = posts.value?.firstOrNull { it.id == id }
-            ?: throw RuntimeException("Failed to find a post by ID")
+        val post = postDao.get(id)
+        if (BuildConfig.DEBUG) {
+            Log.d("REPOSITORY", "post to be liked: $post")
+        }
         postDao.likeById(id)
         try {
             val response = if (!post.likedByMe)
