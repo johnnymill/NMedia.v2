@@ -94,12 +94,31 @@ class FeedFragment : Fragment() {
             binding.emptyText.isVisible = data.empty
         }
 
+        viewModel.newerCount.observe(viewLifecycleOwner) {
+            if (it == 0) {
+                binding.fabNewer.hide()
+            } else {
+                binding.fabNewer.text = getString(R.string.new_posts, it)
+                binding.fabNewer.show()
+            }
+        }
+
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refreshPosts()
         }
 
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+        }
+
+        binding.fabNewer.setOnClickListener {
+            viewModel.loadNewPosts()
+            binding.fabNewer.hide()
+            binding.list.postDelayed(
+//                { binding.list.smoothScrollToPosition(adapter.itemCount - 1) },
+                { binding.list.smoothScrollToPosition(0) },
+                1_000L
+            )
         }
 
         return binding.root
