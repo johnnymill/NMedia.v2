@@ -2,6 +2,7 @@ package ru.netology.nmedia.repository
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.api.ApiPosts
@@ -11,6 +12,7 @@ import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.error.ApiError
+import ru.netology.nmedia.error.AppError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
@@ -50,6 +52,30 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         } catch (e: Exception) {
             throw UnknownError
         }
+    }
+
+    override fun getNewerCount(): Flow<Int> = flow<Int> {
+        while (true) {
+            delay(30_000L)
+            val id = if (postDao.isEmpty()) 0L else postDao.getLatestId()
+            val response = ApiPosts.retrofitService.getNewer(id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            postDao.insert(body.toEntity().map { it.copy(hidden = true) })
+            val count = postDao.getNumHidden()
+            emit(count)
+            if (BuildConfig.DEBUG) {
+                Log.d("REPOSITORY", "unread posts: $count")
+            }
+        }
+    }
+        .catch { e -> throw AppError.from(e) }
+        .flowOn(Dispatchers.Default)
+
+    override suspend fun showNewer() {
+        postDao.updateNewer()
     }
 
     override suspend fun save(post: Post) {

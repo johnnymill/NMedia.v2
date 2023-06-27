@@ -40,6 +40,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
+    val newerCount: LiveData<Int> = data.switchMap {
+        repository.getNewerCount()
+            .asLiveData(Dispatchers.Default)
+    }
 
     init {
         loadPosts()
@@ -65,6 +69,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun refreshPosts() {
         reload(false)
+    }
+
+    fun loadNewPosts() = viewModelScope.launch {
+        repository.showNewer()
     }
 
     fun save() {
