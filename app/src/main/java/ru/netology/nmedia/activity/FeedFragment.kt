@@ -9,6 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -114,12 +115,15 @@ class FeedFragment : Fragment() {
         binding.fabNewer.setOnClickListener {
             viewModel.loadNewPosts()
             binding.fabNewer.hide()
-            binding.list.postDelayed(
-//                { binding.list.smoothScrollToPosition(adapter.itemCount - 1) },
-                { binding.list.smoothScrollToPosition(0) },
-                1_000L
-            )
         }
+
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                if (positionStart == 0) {
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
+        })
 
         return binding.root
     }
