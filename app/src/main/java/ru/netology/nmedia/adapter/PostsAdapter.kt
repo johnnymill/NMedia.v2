@@ -54,7 +54,7 @@ class PostViewHolder(
                 throw Exception("Got unsupported attachment")
             }
             Glide.with(binding.root)
-                .load("${BuildConfig.NMEDIA_SERVER}/images/${post.attachment.url}")
+                .load("${BuildConfig.NMEDIA_SERVER}/media/${post.attachment.url}")
                 .placeholder(R.drawable.ic_avatar_loading_100dp)
                 .error(R.drawable.ic_avatar_load_error_100dp)
                 .timeout(10_000)

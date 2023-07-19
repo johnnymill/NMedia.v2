@@ -12,6 +12,7 @@ import ru.netology.nmedia.model.FeedModelActing
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.FeedPosts
 import ru.netology.nmedia.model.FeedResponse
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 
@@ -22,7 +23,8 @@ private val empty = Post(
     authorAvatar = "",
     likedByMe = false,
     likes = 0,
-    published = ""
+    published = "",
+    attachment = null
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
@@ -36,6 +38,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val data: LiveData<FeedPosts> = repository.posts
         .map(::FeedPosts)
         .asLiveData(Dispatchers.Default)
+    private val _photoState = MutableLiveData<PhotoModel?>()
+    val photoState: LiveData<PhotoModel?>
+        get() = _photoState
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
@@ -76,11 +81,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun save() {
-        edited.value?.let {
+        edited.value?.let { post ->
             _postCreated.value = Unit
             viewModelScope.launch {
                 try {
-                    repository.save(it)
+                    _photoState.value?.let { photoModel ->
+                        repository.saveWithAttachment(photoModel.file, post)
+                    } ?: repository.save(post)
                     _state.value = FeedModelState()
                 } catch (e: Exception) {
                     val resp = if (e is ApiError) FeedResponse(e.status, e.code) else FeedResponse()
@@ -90,6 +97,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
+        _photoState.value = null
         edited.value = empty
     }
 
@@ -103,6 +111,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
         edited.value = edited.value?.copy(content = text)
+    }
+
+    fun changePhoto(photoModel: PhotoModel?) {
+        _photoState.value = photoModel
     }
 
     fun likeById(id: Long) = viewModelScope.launch {
