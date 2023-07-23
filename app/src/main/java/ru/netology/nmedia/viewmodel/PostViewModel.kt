@@ -3,8 +3,10 @@ package ru.netology.nmedia.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.error.ApiError
@@ -21,6 +23,7 @@ private val empty = Post(
     content = "",
     author = "",
     authorAvatar = "",
+    authorId = 0,
     likedByMe = false,
     likes = 0,
     published = "",
@@ -35,9 +38,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _state = MutableLiveData(FeedModelState())
     val state: LiveData<FeedModelState>
         get() = _state
-    val data: LiveData<FeedPosts> = repository.posts
-        .map(::FeedPosts)
-        .asLiveData(Dispatchers.Default)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val data: LiveData<FeedPosts> = AppAuth.getInstance().authStateFlow.flatMapLatest { (id, _) ->
+        repository.posts
+            .map { posts ->
+                posts.map { post -> post.copy(ownedByMe = post.authorId == id) }
+            }
+            .map(::FeedPosts)
+    }.asLiveData(Dispatchers.Default)
     private val _photoState = MutableLiveData<PhotoModel?>()
     val photoState: LiveData<PhotoModel?>
         get() = _photoState
