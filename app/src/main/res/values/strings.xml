@@ -28,4 +28,7 @@
     <string name="channel_remote_description">Notifications from remote server</string>
     <string name="remove_photo">Remove</string>
     <string name="hint_new_post">Type here!</string>
+    <string name="signout">Sign out</string>
+    <string name="signin">Sign in</string>
+    <string name="signup">Sign up</string>
 </resources>
