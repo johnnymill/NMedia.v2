@@ -20,6 +20,7 @@ import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.AppError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
+import ru.netology.nmedia.model.AuthModel
 import java.io.File
 import java.io.IOException
 
@@ -180,5 +181,13 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
             postDao.likeById(id)    // recover previous state
             throw UnknownError
         }
+    }
+
+    override suspend fun signIn(login: String, password: String): AuthModel {
+        val response = ApiPosts.retrofitService.updateUser(login, password)
+        if (!response.isSuccessful) {
+            throw ApiError(response.code(), response.message())
+        }
+        return response.body() ?: throw ApiError(response.code(), response.message())
     }
 }

@@ -87,8 +87,7 @@ class FeedFragment : Fragment() {
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                     return when (menuItem.itemId) {
                         R.id.signIn -> {
-                            // TODO homework
-                            AppAuth.getInstance().setUser(AuthModel(5, "x-token"))
+                            findNavController().navigate(R.id.action_feedFragment_to_authSigninFragment)
                             true
                         }
 
