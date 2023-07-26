@@ -35,4 +35,7 @@
     <string name="auth_login">Логин</string>
     <string name="auth_password">Пароль</string>
     <string name="auth_empty_credentials">Логин и пароль не могут быть пустыми</string>
+    <string name="auth_signout_confirm">Вы уверены, что хотите выйти?</string>
+    <string name="auth_signout_yes">Да</string>
+    <string name="auth_signout_no">Конечно нет!</string>
 </resources>
