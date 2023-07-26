@@ -32,4 +32,7 @@
     <string name="signout">Выйти</string>
     <string name="signin">Войти</string>
     <string name="signup">Зарегистрироваться</string>
+    <string name="auth_login">Логин</string>
+    <string name="auth_password">Пароль</string>
+    <string name="auth_empty_credentials">Логин и пароль не могут быть пустыми</string>
 </resources>
