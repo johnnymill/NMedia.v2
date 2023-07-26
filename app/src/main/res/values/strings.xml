@@ -34,4 +34,7 @@
     <string name="auth_login">Login</string>
     <string name="auth_password">Password</string>
     <string name="auth_empty_credentials">Login and password cannot be empty</string>
+    <string name="auth_signout_confirm">Are you sure you want to sign out?</string>
+    <string name="auth_signout_yes">Yes</string>
+    <string name="auth_signout_no">No, of course no!</string>
 </resources>

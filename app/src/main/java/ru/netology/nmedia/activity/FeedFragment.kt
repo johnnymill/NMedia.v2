@@ -102,7 +102,8 @@ class FeedFragment : Fragment() {
                         }
 
                         R.id.signOut -> {
-                            AppAuth.getInstance().removeUser()
+                            val newFragment = AuthSignOutFragment()
+                            newFragment.show(parentFragmentManager, "dialog")
                             true
                         }
 
