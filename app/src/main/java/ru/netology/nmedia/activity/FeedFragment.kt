@@ -46,7 +46,11 @@ class FeedFragment : Fragment() {
             }
 
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
+                if (AppAuth.getInstance().isUserValid()) {
+                    viewModel.likeById(post.id)
+                } else {
+                    findNavController().navigate(R.id.action_feedFragment_to_authSigninFragment)
+                }
             }
 
             override fun onRemove(post: Post) {
@@ -163,7 +167,11 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            if (AppAuth.getInstance().isUserValid()) {
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            } else {
+                findNavController().navigate(R.id.action_feedFragment_to_authSigninFragment)
+            }
         }
 
         binding.fabNewer.setOnClickListener {

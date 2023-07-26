@@ -37,6 +37,8 @@ class AppAuth private constructor(context: Context) {
         prefs.edit { clear() }
     }
 
+    fun isUserValid() = authStateFlow.value != AuthModel()
+
     companion object {
         private const val ID_KEY = "ID_KEY"
         private const val TOKEN_KEY = "TOKEN_KEY"
