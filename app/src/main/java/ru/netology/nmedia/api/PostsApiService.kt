@@ -49,6 +49,14 @@ interface PostsApiService {
         @Field("login") login: String,
         @Field("pass") password: String
     ): Response<AuthModel>
+
+    @FormUrlEncoded
+    @POST("users/registration")
+    suspend fun registerUser(
+        @Field("login") login: String,
+        @Field("pass") password: String,
+        @Field("name") name: String
+    ): Response<AuthModel>
 }
 
 private val logging = HttpLoggingInterceptor().apply {
