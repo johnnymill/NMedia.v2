@@ -190,4 +190,12 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         }
         return response.body() ?: throw ApiError(response.code(), response.message())
     }
+
+    override suspend fun signUp(login: String, password: String, name: String): AuthModel {
+        val response = ApiPosts.retrofitService.registerUser(login, password, name)
+        if (!response.isSuccessful) {
+            throw ApiError(response.code(), response.message())
+        }
+        return response.body() ?: throw ApiError(response.code(), response.message())
+    }
 }

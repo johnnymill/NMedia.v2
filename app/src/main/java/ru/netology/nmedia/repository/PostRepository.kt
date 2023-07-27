@@ -16,4 +16,5 @@ interface PostRepository {
     suspend fun removeById(id: Long)
     suspend fun likeById(id: Long)
     suspend fun signIn(login: String, password: String): AuthModel
+    suspend fun signUp(login: String, password: String, name: String): AuthModel
 }

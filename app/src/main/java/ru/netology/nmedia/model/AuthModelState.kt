@@ -9,6 +9,7 @@ data class AuthModelState(
 enum class AuthModelActing {
     IDLE,
     SIGN_IN,
+    SIGN_UP,
     COMPLETE,
 }
 

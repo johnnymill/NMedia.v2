@@ -37,4 +37,10 @@
     <string name="auth_signout_confirm">Are you sure you want to sign out?</string>
     <string name="auth_signout_yes">Yes</string>
     <string name="auth_signout_no">No, of course no!</string>
+    <string name="auth_name">Name</string>
+    <string name="auth_passwords_mismatch">Passwords mismatch</string>
+    <string name="auth_hint_name">Your name</string>
+    <string name="auth_hint_login">nickname</string>
+    <string name="auth_hint_password">Enter password</string>
+    <string name="auth_hint_password_repeat">Repeat password</string>
 </resources>

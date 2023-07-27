@@ -27,7 +27,15 @@
         <action
             android:id="@+id/action_feedFragment_to_authSigninFragment"
             app:destination="@id/authSigninFragment" />
+        <action
+            android:id="@+id/action_feedFragment_to_authSignupFragment"
+            app:destination="@id/authSignupFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/authSignupFragment"
+        android:name="ru.netology.nmedia.activity.AuthSignUpFragment"
+        android:label="fragment_auth_signup"
+        tools:layout="@layout/fragment_auth_signup" />
     <fragment
         android:id="@+id/authSigninFragment"
         android:name="ru.netology.nmedia.activity.AuthSignInFragment"

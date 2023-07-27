@@ -38,4 +38,10 @@
     <string name="auth_signout_confirm">Вы уверены, что хотите выйти?</string>
     <string name="auth_signout_yes">Да</string>
     <string name="auth_signout_no">Конечно нет!</string>
+    <string name="auth_name">Имя</string>
+    <string name="auth_passwords_mismatch">Пароли не совпадают</string>
+    <string name="auth_hint_name">Ваше имя</string>
+    <string name="auth_hint_login">логин</string>
+    <string name="auth_hint_password">Введите пароль</string>
+    <string name="auth_hint_password_repeat">Повторите пароль</string>
 </resources>

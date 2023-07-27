@@ -23,7 +23,6 @@ import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.model.AuthModel
 import ru.netology.nmedia.model.FeedModelActing
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
@@ -96,8 +95,7 @@ class FeedFragment : Fragment() {
                         }
 
                         R.id.signUp -> {
-                            // TODO homework
-                            AppAuth.getInstance().setUser(AuthModel(5, "x-token"))
+                            findNavController().navigate(R.id.action_feedFragment_to_authSignupFragment)
                             true
                         }
 
