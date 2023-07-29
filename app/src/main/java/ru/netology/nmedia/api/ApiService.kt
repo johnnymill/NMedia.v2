@@ -12,12 +12,13 @@ import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.model.AuthModel
 import java.util.concurrent.TimeUnit
 
 private const val BASE_URL = "${BuildConfig.NMEDIA_SERVER}/api/slow/"
 
-interface PostsApiService {
+interface ApiService {
 
     @POST("posts")
     suspend fun save(@Body post: Post): Response<Post>
@@ -58,6 +59,9 @@ interface PostsApiService {
         @Field("pass") password: String,
         @Field("name") name: String
     ): Response<AuthModel>
+
+    @POST("users/push-tokens")
+    suspend fun uploadPushToken(@Body pushToken: PushToken): Response<Unit>
 }
 
 private val logging = HttpLoggingInterceptor().apply {
@@ -86,8 +90,8 @@ private val retrofit = Retrofit.Builder()
     .client(client)
     .build()
 
-object ApiPosts {
-    val retrofitService: PostsApiService by lazy {
+object Api {
+    val retrofitService: ApiService by lazy {
         retrofit.create()
     }
 }
