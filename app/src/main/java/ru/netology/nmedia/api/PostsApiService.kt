@@ -9,6 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 import retrofit2.http.*
 import ru.netology.nmedia.BuildConfig
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.AuthModel
@@ -67,6 +68,15 @@ private val logging = HttpLoggingInterceptor().apply {
 
 private val client = OkHttpClient.Builder()
     .addInterceptor(logging)
+    .addInterceptor { chain ->
+        AppAuth.getInstance().authStateFlow.value.token?.let { token ->
+            val newRequest = chain.request().newBuilder()
+                .addHeader("Authorization", token)
+                .build()
+            return@addInterceptor chain.proceed(newRequest)
+        }
+        chain.proceed(chain.request())
+    }
     .connectTimeout(30, TimeUnit.SECONDS)
     .build()
 
