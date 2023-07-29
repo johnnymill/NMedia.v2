@@ -4,7 +4,9 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.PermissionChecker
@@ -37,11 +39,25 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-
-        message.data[action]?.let {
-           when (Action.valueOf(it)) {
-              Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
-           }
+        message.data[action].let {
+            if (it == null) {
+                val myId = AppAuth.getInstance().authStateFlow.value.id
+                val simpleNotification =
+                    gson.fromJson(message.data[content], SimpleNotification::class.java)
+                if (simpleNotification.recipientId == null
+                    || simpleNotification.recipientId == myId
+                ) {
+                    handleSimpleNotification(simpleNotification)
+                } else {
+                    AppAuth.getInstance().uploadPushToken(AppAuth.getInstance().pushToken?.token)
+                }
+            } else {
+                when (Action.valueOf(it)) {
+                    Action.LIKE -> handleLike(
+                        gson.fromJson(message.data[content], Like::class.java)
+                    )
+                }
+            }
         }
     }
 
@@ -71,6 +87,32 @@ class FCMService : FirebaseMessagingService() {
                 .notify(Random.nextInt(100_000), notification)
         }
     }
+
+    private fun handleSimpleNotification(content: SimpleNotification) {
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(content.content)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+
+        NotificationManagerCompat.from(this)
+            .notify(Random.nextInt(100_000), notification)
+    }
 }
 
 enum class Action {
@@ -82,4 +124,9 @@ data class Like(
     val userName: String,
     val postId: Long,
     val postAuthor: String,
+)
+
+data class SimpleNotification(
+    val recipientId: Long?,
+    val content: String,
 )

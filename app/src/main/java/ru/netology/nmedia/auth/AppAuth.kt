@@ -32,12 +32,14 @@ class AppAuth private constructor(context: Context) {
     }
 
     val authStateFlow = _authStateFlow.asStateFlow()
+    var pushToken: PushToken? = null
 
     fun uploadPushToken(token: String? = null) {
         CoroutineScope(Dispatchers.Default).launch {
             try {
-                PushToken(token ?: Firebase.messaging.token.await())
-                    .let { Api.retrofitService.uploadPushToken(it) }
+                val pt = PushToken(token ?: Firebase.messaging.token.await())
+                Api.retrofitService.uploadPushToken(pt)
+                pushToken = pt
             } catch (e: Exception) {
                 e.printStackTrace()
             }
