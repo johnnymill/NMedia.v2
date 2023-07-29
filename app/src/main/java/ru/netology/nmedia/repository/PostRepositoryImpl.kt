@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.BuildConfig
-import ru.netology.nmedia.api.ApiPosts
+import ru.netology.nmedia.api.Api
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.AttachmentType
@@ -48,7 +48,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
 
     override suspend fun getAll() {
         try {
-            val response = ApiPosts.retrofitService.getAll()
+            val response = Api.retrofitService.getAll()
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -65,7 +65,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         while (true) {
             delay(30_000L)
             val id = if (postDao.isEmpty()) 0L else postDao.getLatestId()
-            val response = ApiPosts.retrofitService.getNewer(id)
+            val response = Api.retrofitService.getNewer(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -87,7 +87,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
 
     override suspend fun save(post: Post) {
         try {
-            val response = ApiPosts.retrofitService.save(post)
+            val response = Api.retrofitService.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -103,7 +103,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     override suspend fun saveWithAttachment(file: File, post: Post) {
         try {
             val media = upload(file)
-            val response = ApiPosts.retrofitService.save(
+            val response = Api.retrofitService.save(
                 post.copy(
                     attachment = Attachment(
                         url = media.id,
@@ -125,7 +125,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     }
 
     private suspend fun upload(file: File): Media {
-        return ApiPosts.retrofitService.upload(
+        return Api.retrofitService.upload(
             MultipartBody.Part.createFormData(
                 "file",
                 file.name,
@@ -141,7 +141,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         }
         postDao.removeById(id)
         try {
-            val response = ApiPosts.retrofitService.removeById(id)
+            val response = Api.retrofitService.removeById(id)
             if (!response.isSuccessful) {
                 postDao.insert(postRemoved) // recover previous state
                 throw ApiError(response.code(), response.message())
@@ -163,9 +163,9 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         postDao.likeById(id)
         try {
             val response = if (!post.likedByMe)
-                ApiPosts.retrofitService.likeById(id)
+                Api.retrofitService.likeById(id)
             else
-                ApiPosts.retrofitService.dislikeById(id)
+                Api.retrofitService.dislikeById(id)
             if (!response.isSuccessful) {
                 postDao.likeById(id)    // recover previous state
                 throw ApiError(response.code(), response.message())
@@ -184,7 +184,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     }
 
     override suspend fun signIn(login: String, password: String): AuthModel {
-        val response = ApiPosts.retrofitService.updateUser(login, password)
+        val response = Api.retrofitService.updateUser(login, password)
         if (!response.isSuccessful) {
             throw ApiError(response.code(), response.message())
         }
@@ -192,7 +192,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     }
 
     override suspend fun signUp(login: String, password: String, name: String): AuthModel {
-        val response = ApiPosts.retrofitService.registerUser(login, password, name)
+        val response = Api.retrofitService.registerUser(login, password, name)
         if (!response.isSuccessful) {
             throw ApiError(response.code(), response.message())
         }
